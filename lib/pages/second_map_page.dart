@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:google_maps/const.dart';
+import 'package:google_maps/services/const.dart';
 import 'package:google_maps/models/network_utils.dart';
 import 'package:google_maps/models/place_autocomplete.dart';
 
