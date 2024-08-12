@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,12 +19,11 @@ class ThirdMapPage extends HookWidget {
       Completer<GoogleMapController>();
   final Location _locationController = Location();
   Map<PolylineId, Polyline> polylines = {};
-  // double latitude = 0;
-  // double longitude = 0;
-  // List<AutocompletePrediction> placePredictions = [];
 
   @override
   Widget build(BuildContext context) {
+    final textController = useTextEditingController();
+    final focusnode = useFocusNode();
     final currentP = useState<LatLng?>(const LatLng(0, 0));
     final markers = useState<Map<String, Marker>>({});
     final isTapped = useState(false);
@@ -69,8 +69,6 @@ class ThirdMapPage extends HookWidget {
 
     Future<void> getCurrentLoction() async {
       LocationData currentPosition = await _locationController.getLocation();
-      // latitude = currentPosition.latitude!;
-      // longitude = currentPosition.longitude!;
       currentP.value = LatLng(
         currentPosition.latitude!,
         currentPosition.longitude!,
@@ -124,6 +122,19 @@ class ThirdMapPage extends HookWidget {
     }, const []);
 
     return Scaffold(
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          cameraToPosition(currentP.value!);
+        },
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: const Icon(Icons.my_location),
+        ),
+      ),
       resizeToAvoidBottomInset: false,
       body: currentP.value == null
           ? const Center(
@@ -131,9 +142,8 @@ class ThirdMapPage extends HookWidget {
             )
           : Stack(children: [
               GoogleMap(
+                zoomControlsEnabled: false,
                 onTap: (LatLng coordinates) {
-                  // latitude = coordinates.latitude;
-                  // longitude = coordinates.longitude;
                   currentP.value = LatLng(
                     coordinates.latitude,
                     coordinates.longitude,
@@ -169,6 +179,8 @@ class ThirdMapPage extends HookWidget {
                           itemBuilder: (context, index) {
                             return ListTile(
                               onTap: () async {
+                                focusnode.unfocus();
+                                textController.clear();
                                 Uri uri = Uri.https(
                                   "maps.googleapis.com",
                                   '/maps/api/place/details/json',
@@ -181,7 +193,26 @@ class ThirdMapPage extends HookWidget {
                                 String? response =
                                     await NetworkUtility.fetchUrl(uri);
                                 if (response != null) {
-                                  debugPrint(response);
+                                  final parsed = jsonDecode(response)
+                                      as Map<String, dynamic>;
+
+                                  double _currentLat = parsed["result"]
+                                      ["geometry"]["location"]["lat"];
+                                  double _currentLng = parsed["result"]
+                                      ["geometry"]["location"]["lng"];
+
+                                  markers.value['myLocation'] = Marker(
+                                    markerId: const MarkerId('myLocation'),
+                                    position: LatLng(
+                                      _currentLat,
+                                      _currentLng,
+                                    ),
+                                    infoWindow: const InfoWindow(
+                                        title: 'Details go here'),
+                                  );
+                                  isTapped.value = false;
+                                  cameraToPosition(
+                                      LatLng(_currentLat, _currentLng));
                                 }
                               },
                               title: Text(
@@ -199,34 +230,72 @@ class ThirdMapPage extends HookWidget {
                   right: 10,
                 ),
                 child: Container(
-                  decoration: BoxDecoration(boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    )
-                  ]),
-                  child: TextField(
-                    onTap: () {
-                      isTapped.value = true;
-                    },
-                    onChanged: (value) {
-                      placeAutocomplete(value);
-                    },
-                    decoration: InputDecoration(
-                      prefix: SvgPicture.asset(
-                        'assets/images/google-maps-2020-icon.svg',
-                        height: 20,
-                        width: 20,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isTapped.value
+                            ? Colors.transparent
+                            : Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      if (isTapped.value)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              size: 30,
+                            ),
+                            onPressed: () {
+                              isTapped.value = false;
+                              focusnode.unfocus();
+                            },
+                          ),
+                        ),
+                      Expanded(
+                        child: TextField(
+                          focusNode: focusnode,
+                          onTap: () {
+                            isTapped.value = true;
+                          },
+                          onChanged: (value) {
+                            placeAutocomplete(value);
+                          },
+                          decoration: InputDecoration(
+                            prefixIcon: isTapped.value
+                                ? const SizedBox()
+                                : Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SvgPicture.asset(
+                                      'assets/images/google-maps-2020-icon.svg',
+                                      height: 10,
+                                      width: 10,
+                                    ),
+                                  ),
+                            hintText: 'Search',
+                            hintStyle: TextStyle(
+                                color:
+                                    isTapped.value ? Colors.white : Colors.grey,
+                                fontSize: 20),
+                            fillColor: isTapped.value
+                                ? Colors.grey[400]
+                                : Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
                       ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ),
