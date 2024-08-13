@@ -1,11 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps/services/const.dart';
-import 'package:google_maps/models/network_utils.dart';
-import 'package:google_maps/models/place_autocomplete.dart';
 
-import '../models/autocomplete_predictions.dart';
+import '../services/const.dart';
 
 class SecondMapPage extends StatefulWidget {
   const SecondMapPage({super.key});
@@ -15,94 +10,60 @@ class SecondMapPage extends StatefulWidget {
 }
 
 class _SecondMapPageState extends State<SecondMapPage> {
-  List<AutocompletePrediction> placePredictions = [];
-  final _formKey = GlobalKey<FormState>();
-  void placeAutocomplete(String query) async {
-    Uri uri = Uri.https(
-      "maps.googleapis.com",
-      '/maps/api/place/autocomplete/json', // unencoder path
-      {
-        "input": query,
-        "key": GOOGLE_MAPS_API_KEY,
-      },
-    );
-
-    String? response = await NetworkUtility.fetchUrl(uri);
-
-    if (response != null) {
-      print(response);
-      PlaceAutocompleteReponse result =
-          PlaceAutocompleteReponse.parseAutocompleteResult(response);
-      if (result.predictions != null) {
-        setState(() {
-          placePredictions = result.predictions!;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Set Delivery Location"),
-      ),
-      body: Column(
-        children: [
-          Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                onChanged: (value) {
-                  placeAutocomplete(value);
-                },
-                textInputAction: TextInputAction.search,
-                decoration: const InputDecoration(
-                  hintText: "Search your location",
+    void bottomsheet() {
+      showModalBottomSheet(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        context: context,
+        builder: (context) {
+          return SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.grey[200],
+                  ),
+                  height: 9,
+                  width: 50,
                 ),
-              ),
-            ),
-          ),
-          const Divider(
-            height: 4,
-            thickness: 4,
-            color: Colors.grey,
-          ),
-          Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                label: const Text(
-                  "Use my current location",
+                const Text(
+                  textAlign: TextAlign.left,
+                  "Place Title",
                   style: TextStyle(
-                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              )),
-          Expanded(
-            child: ListView.builder(
-              itemCount: placePredictions.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  onTap: () {},
-                  horizontalTitleGap: 0,
-                  title: Text(
-                    placePredictions[index].description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              },
+                )
+              ],
             ),
-          ),
-        ],
+          );
+        },
+      );
+    }
+
+    return Scaffold(
+      body: Center(
+        child: Image.network(
+          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=720&photoreference=AelY_CtC1WSVD4CDgKd7wCpJf_yD-xiB_StVc_RRV8cpjmw95i1FYiOQXIBMFAo-U0sEmVSiBWz2z5ZNzO3f_VQ0ABIvQU9BF-3XG8kEs4QWIjwSe1ROLNNQ9zRUxiPUa0fTAisE5IXHJXGsSL_9RyoLuSpua6FVv5pYg-otceZIC6Wkg9x7&key=$GOOGLE_MAPS_API_KEY',
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
