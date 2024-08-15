@@ -4,14 +4,9 @@ import 'package:google_maps/widgets/pictures_listview.dart';
 
 import '../services/const.dart';
 
-class SecondMapPage extends StatefulWidget {
+class SecondMapPage extends StatelessWidget {
   const SecondMapPage({super.key});
 
-  @override
-  State<SecondMapPage> createState() => _SecondMapPageState();
-}
-
-class _SecondMapPageState extends State<SecondMapPage> {
   @override
   Widget build(BuildContext context) {
     void bottomsheet() {
@@ -98,7 +93,7 @@ class _SecondMapPageState extends State<SecondMapPage> {
                   ),
                 ),
                 ButtonsRow(),
-                PicturesListview()
+                // PicturesListview()
               ],
             ),
           );

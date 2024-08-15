@@ -7,6 +7,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps/models/autocomplete_conversion.dart';
 import 'package:google_maps/services/const.dart';
+import 'package:google_maps/widgets/buttons_row.dart';
+import 'package:google_maps/widgets/pictures_listview.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -47,54 +49,75 @@ class ThirdMapPage extends HookWidget {
                   margin: const EdgeInsets.only(top: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey[200],
+                    color: Colors.grey[300],
                   ),
-                  height: 9,
+                  height: 5,
                   width: 50,
                 ),
-                const Text(
-                  textAlign: TextAlign.left,
-                  "Place Title",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            textAlign: TextAlign.left,
+                            "Place Title",
+                            style: TextStyle(
+                              fontSize: 25,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey[200],
+                                ),
+                                child:
+                                    const Icon(Icons.share_outlined, size: 20),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[200],
+                                  ),
+                                  child: const Icon(Icons.close, size: 20),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      const Text(
+                        "Subtitle",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const Text(
+                        "Longer Subtitle",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: conversion.photos.length,
-                    itemBuilder: (context, index) {
-                      String url =
-                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=${conversion.photos[index].width.toInt().toString()}&photoreference=${conversion.photos[index].photoReference}&key=$GOOGLE_MAPS_API_KEY';
-
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 15),
-                        width: 100,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            fit: BoxFit.cover,
-                            url,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )
+                ButtonsRow(),
+                PicturesListview(photos: conversion.photos),
               ],
             ),
           );
