@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps/widgets/buttons_row.dart';
+import 'package:google_maps/widgets/pictures_listview.dart';
 
 import '../services/const.dart';
 
@@ -28,19 +30,75 @@ class _SecondMapPageState extends State<SecondMapPage> {
                   margin: const EdgeInsets.only(top: 5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey[200],
+                    color: Colors.grey[300],
                   ),
-                  height: 9,
+                  height: 5,
                   width: 50,
                 ),
-                const Text(
-                  textAlign: TextAlign.left,
-                  "Place Title",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            textAlign: TextAlign.left,
+                            "Place Title",
+                            style: TextStyle(
+                              fontSize: 25,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey[200],
+                                ),
+                                child:
+                                    const Icon(Icons.share_outlined, size: 20),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[200],
+                                  ),
+                                  child: const Icon(Icons.close, size: 20),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      const Text(
+                        "Subtitle",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const Text(
+                        "Longer Subtitle",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                )
+                ),
+                ButtonsRow(),
+                PicturesListview()
               ],
             ),
           );
@@ -50,21 +108,10 @@ class _SecondMapPageState extends State<SecondMapPage> {
 
     return Scaffold(
       body: Center(
-        child: Image.network(
-          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=720&photoreference=AelY_CtC1WSVD4CDgKd7wCpJf_yD-xiB_StVc_RRV8cpjmw95i1FYiOQXIBMFAo-U0sEmVSiBWz2z5ZNzO3f_VQ0ABIvQU9BF-3XG8kEs4QWIjwSe1ROLNNQ9zRUxiPUa0fTAisE5IXHJXGsSL_9RyoLuSpua6FVv5pYg-otceZIC6Wkg9x7&key=$GOOGLE_MAPS_API_KEY',
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            );
-          },
-        ),
-      ),
+          child: ElevatedButton(
+        onPressed: bottomsheet,
+        child: const Text("Show Bottom Sheet"),
+      )),
     );
   }
 }

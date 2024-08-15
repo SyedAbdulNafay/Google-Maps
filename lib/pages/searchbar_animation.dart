@@ -69,15 +69,6 @@ class ThirdMapPage extends HookWidget {
                       String url =
                           'https://maps.googleapis.com/maps/api/place/photo?maxwidth=${conversion.photos[index].width.toInt().toString()}&photoreference=${conversion.photos[index].photoReference}&key=$GOOGLE_MAPS_API_KEY';
 
-                      // final future = useMemoized(
-                      //   () => NetworkAssetBundle(Uri.parse(url))
-                      //       .load(url)
-                      //       .then((data) => data.buffer.asUint8List())
-                      //       .then((data) => Image.memory(data)),
-                      // );
-
-                      // final snapshot = useFuture(future);
-
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 15),
                         width: 100,
