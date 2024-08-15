@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:custom_rating_bar/custom_rating_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps/models/autocomplete_conversion.dart';
@@ -62,12 +62,12 @@ class ThirdMapPage extends HookWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             textAlign: TextAlign.left,
-                            "Place Title",
-                            style: TextStyle(
-                              fontSize: 25,
-                            ),
+                            conversion.name,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(fontSize: 20),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,12 +99,37 @@ class ThirdMapPage extends HookWidget {
                           )
                         ],
                       ),
-                      const Text(
-                        "Subtitle",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            conversion.rating.toString(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: RatingBar.readOnly(
+                              size: 16,
+                              halfFilledIcon: Icons.star_half,
+                              halfFilledColor: Colors.yellow,
+                              filledIcon: Icons.star,
+                              emptyIcon: Icons.star_border,
+                              isHalfAllowed: true,
+                              initialRating: conversion.rating,
+                              filledColor: Colors.yellow,
+                              maxRating: 5,
+                            ),
+                          ),
+                          Text(
+                            "(${conversion.totalRatings})",
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
                       ),
                       const Text(
                         "Longer Subtitle",
@@ -113,11 +138,18 @@ class ThirdMapPage extends HookWidget {
                           color: Colors.grey,
                         ),
                       ),
+                      Text(
+                        conversion.isOpen ? "Open" : "Closed",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: conversion.isOpen ? Colors.green : Colors.red,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                ButtonsRow(),
-                PicturesListview(photos: conversion.photos),
+                const ButtonsRow(),
+                PicturesListview(photos: conversion.photos ?? []),
               ],
             ),
           );
@@ -288,6 +320,8 @@ class ThirdMapPage extends HookWidget {
                                       "key": GOOGLE_MAPS_API_KEY,
                                     },
                                   );
+                                  debugPrint(
+                                      placePredictions.value[index].placeId);
                                   String? response =
                                       await NetworkUtility.fetchUrl(uri);
                                   if (response != null) {
@@ -314,7 +348,25 @@ class ThirdMapPage extends HookWidget {
                                   }
                                 },
                                 title: Text(
-                                    placePredictions.value[index].description!),
+                                  placePredictions.value[index]
+                                      .structuredFormatting!.mainText!,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                subtitle: Text(
+                                  placePredictions
+                                          .value[index]
+                                          .structuredFormatting!
+                                          .secondaryText ??
+                                      "",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                trailing:
+                                    const Icon(Icons.arrow_outward_outlined),
                               );
                             },
                           ),
@@ -342,6 +394,7 @@ class ThirdMapPage extends HookWidget {
                       ],
                     ),
                     child: TextField(
+                      controller: textController,
                       focusNode: focusnode,
                       onTap: () {
                         isTapped.value = true;
@@ -350,6 +403,9 @@ class ThirdMapPage extends HookWidget {
                         placeAutocomplete(value);
                       },
                       decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
                         prefixIcon: isTapped.value
                             ? IconButton(
                                 icon: const Icon(
@@ -368,6 +424,33 @@ class ThirdMapPage extends HookWidget {
                                   height: 10,
                                   width: 10,
                                 ),
+                              ),
+                        suffixIcon: isTapped.value
+                            ? (textController.text.isEmpty
+                                ? const Icon(Icons.mic)
+                                : const Icon(Icons.cancel_outlined))
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.mic),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                      right: 8,
+                                      left: 8,
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.orange,
+                                    ),
+                                    child: const Text(
+                                      "S",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                         hintText: 'Search here',
                         hintStyle: const TextStyle(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps/tabs/overview_tab.dart';
 import 'package:google_maps/widgets/buttons_row.dart';
 import 'package:google_maps/widgets/pictures_listview.dart';
 
@@ -92,8 +93,44 @@ class SecondMapPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                ButtonsRow(),
+                const ButtonsRow(),
                 // PicturesListview()
+                DefaultTabController(
+                    length: 6,
+                    child: Column(
+                      children: [
+                        TabBar(
+                          labelColor: Colors.blue[700],
+                          isScrollable: true,
+                          tabs: const [
+                            Tab(
+                              text: "Overview",
+                            ),
+                            Tab(
+                              text: "Directory",
+                            ),
+                            Tab(
+                              text: "Reviews",
+                            ),
+                            Tab(
+                              text: "Photos",
+                            ),
+                            Tab(
+                              text: "Updates",
+                            ),
+                            Tab(
+                              text: "About",
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                            child: TabBarView(
+                          children: [
+                            OverviewTab(text: 'text'),
+                          ],
+                        ))
+                      ],
+                    ))
               ],
             ),
           );

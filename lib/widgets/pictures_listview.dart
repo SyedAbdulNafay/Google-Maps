@@ -12,7 +12,8 @@ class PicturesListview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       height: 205,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -22,7 +23,10 @@ class PicturesListview extends StatelessWidget {
             children: [
               if (index % 3 != 2)
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  margin: EdgeInsets.only(
+                    left: index == 0 ? 15 : 8,
+                    right: index == photos.length - 1 ? 15 : 8,
+                  ),
                   height: index % 3 == 0 ? 205 : 100,
                   width: index % 3 == 0 ? 205 : 100,
                   child: ClipRRect(
